@@ -18,7 +18,16 @@ class ApiUserController extends Controller
 {
     /**
      * Requests to join a ride
-     * @ApiDoc()
+     * @ApiDoc(
+     * requirements={
+     *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the ride you want to join"},
+     * },
+     * statusCodes={
+     *         200="Returned when successful",
+     *         403="Returned when the user is not authorized",
+     *         404="Returned when the ride is not found",
+     *         409={"Ride is fully booked","A user tries to join his own ride"}     *
+     *     })
      * @View()
      * @Post("/rides/{id}/join");
      */
@@ -50,8 +59,20 @@ class ApiUserController extends Controller
             $em->persist($rideToUser);
             $em->flush();
 
-            //TO-DO probably call some background services or fire an event when a user requests to join to a ride
-            //maybe send an email/sms/popup to the owner of the ride
+            /*
+            * The email sending should be moved to a background task
+            */
+            $message = \Swift_Message::newInstance()
+               ->setSubject('RWMT Ride Request')
+               ->setFrom('no-reply@ridewithme.today')
+               ->setTo($ride->getOwner()->getEmail())
+               ->setBody(
+                   $this->renderView(
+                       'RwmtBundle:API\rides:joinRequest.email.twig',
+                       array('rideToUser' => $rideToUser)
+                   )
+               );
+            $this->get('mailer')->send($message);
 
             $url = $this->generateUrl('get_user_ride',array('id' => $rideToUser->getId()), true);
 
