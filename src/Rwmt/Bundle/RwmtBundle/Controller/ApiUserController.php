@@ -26,7 +26,7 @@ class ApiUserController extends Controller
      *         200="Returned when successful",
      *         403="Returned when the user is not authorized",
      *         404="Returned when the ride is not found",
-     *         409={"Ride is fully booked","A user tries to join his own ride"}     *
+     *         409={"Ride is fully booked","A user tries to join his own ride"}
      *     })
      * @View()
      * @Post("/rides/{id}/join");
@@ -40,6 +40,8 @@ class ApiUserController extends Controller
             /* @var $ride \Rwmt\Bundle\RwmtBundle\Entity\Ride */
             $ride = $em->getRepository('RwmtBundle:Ride')->getRide($id, \Doctrine\ORM\Query::HYDRATE_OBJECT);
 
+            //TO-DO: Move all this validations to somewhere else
+            //Keep It Slim
             if($ride === null){
                 throw new HttpException(Codes::HTTP_NOT_FOUND, 'Ride could not be found!');
             }
@@ -52,6 +54,8 @@ class ApiUserController extends Controller
                 throw new HttpException(Codes::HTTP_CONFLICT, "You can't join your own ride!");
             }
 
+            //TO-DO: Move this update to somewhere else
+            //Keep It Slim
             $rideToUser = new \Rwmt\Bundle\RwmtBundle\Entity\RideToUser();
             $rideToUser->setUser($user);
             $rideToUser->setRide($ride);
@@ -61,6 +65,7 @@ class ApiUserController extends Controller
 
             /*
             * The email sending should be moved to a background task
+            * //Keep It Slim
             */
             $message = \Swift_Message::newInstance()
                ->setSubject('RWMT Ride Request')
