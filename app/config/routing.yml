@@ -1,0 +1,4 @@
+rwmt:
+    resource: "@RwmtBundle/Resources/config/routing.yml"
+    prefix:   /
+

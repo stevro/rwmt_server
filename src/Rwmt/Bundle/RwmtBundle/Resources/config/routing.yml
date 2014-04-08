@@ -1,0 +1,23 @@
+rwmtRegistrationAPI:
+  type: rest
+  prefix: /api/v1
+  resource: @RwmtBundle/Controller/ApiRegistrationController.php
+
+rwmtRidesAPI:
+  type: rest
+  prefix: /api/v1
+  resource: @RwmtBundle/Controller/ApiRidesController.php
+
+
+rwmtUserRidesAPI:
+  type: rest
+  prefix: /api/v1
+  resource: @RwmtBundle/Controller/ApiUserController.php
+  
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/v1/doc
+
+logout:
+    path:   /api/v1/logout

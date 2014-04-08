@@ -1,0 +1,26 @@
+{# empty Twig template #}
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>From address</th>
+            <th>To address</th>
+            <th>User</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+
+        </tr>
+    </thead>
+    <tbody>
+            <tr>
+                <td>{{ride.id}}</td>
+                <td>{{ride.fromAddress}}</td>
+                <td>{{ride.toAddress}}</td>
+                <td>{{ride.ownerId}}</td>
+                <td>{{ride.createdAt.date}}</td>
+                <td>{{ride.updatedAt.date}}</td>
+            </tr>
+    </tbody>
+</table>

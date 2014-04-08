@@ -1,0 +1,42 @@
+security:
+    encoders:
+        Rwmt\Bundle\RwmtBundle\Entity\User: sha512
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    providers:
+      user:
+          entity: {class: Rwmt\Bundle\RwmtBundle\Entity\User, property: username}
+
+    firewalls:
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        login:
+            pattern:  ^/api/v1/login$
+            security: false
+        doc:
+            pattern:  ^/api/v1/doc
+            security: false
+        new_account:
+            pattern: ^/api/v1/account/new
+            security: false
+        account_confirm:
+            pattern: ^/api/v1/account/confirm
+            security: false
+        secured_area:
+            pattern:   ^/
+            stateless:  true
+            anonymous: ~
+            http_basic:
+                provider: user
+                realm: "RideWithMe.Today secured area"
+            logout:
+                path:   /api/v1/logout
+                target: /api/v1/
+
+    access_control:
+            - { path: ^/api/v1/rides, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+            - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }

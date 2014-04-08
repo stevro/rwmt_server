@@ -1,0 +1,197 @@
+{# empty Twig template #}
+
+<div id="map-canvas" style="width: 800px; height: 500px"></div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>From address</th>
+            <th>To address</th>
+            <th>Distance</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for ride in rides %}
+            <tr>
+                 <td>{{ride.id}}</td>
+                <td>{{ride.fromAddress}}</td>
+                <td>{{ride.toAddress}}</td>
+                <td>{{ride.distance}}</td>
+                <td>{{ride.createdAt}}</td>
+                <td>{{ride.updatedAt}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+
+window.onload = injectGoogle;
+
+var markersArray = [];
+var directionsDisplay;
+var directionsService;
+var map;
+var drawingManager;
+
+function injectGoogle() {
+
+
+    var wf = document.createElement('script');
+    wf.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing&' + 'callback=initialize_map';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+};
+
+
+function resetMap() {
+    map.setCenter(london);
+    map.setZoom(10);
+}
+function initialize_map() {
+
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    var london = new google.maps.LatLng(51.52, -0.12);
+
+    var mapOptions = {
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        center: london,
+        panControl: true,
+        zoomControl: true,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        },
+        scaleControl: true,
+        streetViewControl: true,
+        overviewMapControl: true,
+        navigationControlOptions: {
+            style: google.maps.NavigationControlStyle.DEFAULT
+        }
+    }
+    directionsService = new google.maps.DirectionsService();
+    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+    directionsDisplay.setMap(map);
+
+    //getLocations();
+    initDrawingManager();
+
+}
+
+function initDrawingManager()
+{
+    drawingManager = new google.maps.drawing.DrawingManager({
+        drawingMode: google.maps.drawing.OverlayType.MARKER,
+        drawingControl: true,
+        drawingControlOptions: {
+          position: google.maps.ControlPosition.TOP_CENTER,
+          drawingModes: [
+            google.maps.drawing.OverlayType.MARKER,
+            //google.maps.drawing.OverlayType.RECTANGLE
+          ]
+        },
+        markerOptions: {
+         //icon: 'http://lcms.insoftd.com/images/track_driver.png'
+        },
+        circleOptions: {
+          fillColor: '#ffff00',
+          fillOpacity: 1,
+          strokeWeight: 5,
+          clickable: false,
+          zIndex: 1,
+          editable: true
+        }
+    });
+  drawingManager.setMap(map);
+
+  google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
+
+    getNearbyLocations(event.overlay);
+    google.maps.event.addListener(event.overlay, "dblclick", function(event){
+        alert('asd');
+    });
+
+});
+
+}
+
+function clearOverlays() {
+  if (markersArray) {
+    for (i in markersArray) {
+      markersArray[i].setMap(null);
+    }
+  }
+}
+
+function getNearbyLocations(point) {
+    //console.log(point.getPosition().lng());
+    clearOverlays();
+    var url = "/app_dev.php/api/v1/rides/closest/long/" + point.getPosition().lng() + '/lat/'+point.getPosition().lat() + '/range/'+10 + '/limit/10000';
+    $.getJSON(url,
+            {},
+    function(data) {
+        directionsDisplay.setMap(map);
+        addMarkers(data.rides);
+
+    });
+}
+
+function getLocations() {
+
+    clearOverlays();
+    $.getJSON("/app_dev.php/api/v1/rides",
+            {
+
+            },
+    function(data) {
+        directionsDisplay.setMap(map);
+        addMarkers(data.rides);
+
+    });
+}
+
+function addMarkers(data)
+{
+ clearOverlays();
+ var i =0;
+$.each(data, function (index) {
+        i++;
+        //alert(data[index].latitude,data[index].longitude)
+         setTimeout(function() {
+            addMarker(data[index], i);
+
+        }, i*200);
+   });
+}
+
+function addMarker(data, i) {
+
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(data.toLat,data.toLong),
+            map: map,
+            title:data.name,
+            name: data.ID,
+            //animation: google.maps.Animation.DROP,
+            ZIndex: 1000,
+            icon: 'http://lcms.insoftd.com/images/track_driver.png'
+        });
+        marker.setMap(map);
+
+       google.maps.event.addListener(marker, 'click', function(){
+           {#showInfoWindow(data, marker);
+           zoomMarker(marker);#}
+
+       });
+       markersArray.push(marker);
+}
+
+
+</script>
