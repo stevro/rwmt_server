@@ -11,6 +11,8 @@ use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\Collection;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
 
 /**
  * User
@@ -19,6 +21,8 @@ use Symfony\Component\Validator\Constraints\Collection;
  * @ORM\Entity(repositoryClass="UserRepository")
  * @UniqueEntity(fields="email", message="Email already registered")
  * @UniqueEntity(fields="username", message="Username already taken")
+ *
+ * @ExclusionPolicy("all")
  */
 class User implements AdvancedUserInterface, Serializable
 {
@@ -28,6 +32,7 @@ class User implements AdvancedUserInterface, Serializable
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
      */
     private $id;
 
@@ -36,6 +41,7 @@ class User implements AdvancedUserInterface, Serializable
      *
      * @Assert\NotBlank(message="Username must not be blank")
      * @ORM\Column(name="username", type="string", length=255)
+     * @Expose
      */
     private $username;
 
@@ -46,6 +52,7 @@ class User implements AdvancedUserInterface, Serializable
      * @Assert\Length(min=3,max=50)
      * @Assert\Email()
      * @ORM\Column(name="email", type="string", length=255)
+     * @Expose
      */
     private $email;
 
@@ -54,6 +61,7 @@ class User implements AdvancedUserInterface, Serializable
      *
      * @Assert\NotBlank(message="Phone must not be blank")
      * @ORM\Column(name="phone", type="string", length=255)
+     * @Expose
      */
     private $phone;
 
@@ -62,6 +70,7 @@ class User implements AdvancedUserInterface, Serializable
      *
      * @Assert\NotBlank(message="Firstname must not be blank")
      * @ORM\Column(name="first_name", type="string", length=255)
+     * @Expose
      */
     private $firstName;
 
@@ -70,6 +79,7 @@ class User implements AdvancedUserInterface, Serializable
      *
      * @Assert\NotBlank(message="Lastname must not be blank")
      * @ORM\Column(name="last_name", type="string", length=255)
+     * @Expose
      */
     private $lastName;
 
@@ -89,8 +99,8 @@ class User implements AdvancedUserInterface, Serializable
 
     /**
      *
-     * @Assert\NotBlank(message="Password should not be blank")
-     * @Assert\Length(min=8)
+     * @Assert\NotBlank(message="Password should not be blank", groups={"registration"})
+     * @Assert\Length(min=8, groups={"registration"})
      */
     private $rawPassword;
 
@@ -121,7 +131,6 @@ class User implements AdvancedUserInterface, Serializable
      * @var Collection
      *
      * @ORM\OneToMany(targetEntity="RideToUser", mappedBy="user")
-     *
      */
     private $rides;
 
@@ -135,6 +144,7 @@ class User implements AdvancedUserInterface, Serializable
     /**
      * @var \DateTime
      * @ORM\Column(name="last_login", type="datetime", nullable=true)
+     * @Expose
      */
     private $lastLogin;
 
@@ -148,7 +158,7 @@ class User implements AdvancedUserInterface, Serializable
 
     /**
      * @ORM\ManyToMany(targetEntity="Role", inversedBy="users")
-     *
+     * @Expose
      */
     private $roles;
 
@@ -156,6 +166,7 @@ class User implements AdvancedUserInterface, Serializable
      * @var Car
      *
      * @ORM\OneToMany(targetEntity="Car", mappedBy="owner")
+     *
      */
     private $ownedCars;
 
@@ -426,7 +437,7 @@ class User implements AdvancedUserInterface, Serializable
 
      /**
      *
-     * @Assert\True(message="Your password must not contain your email")
+     * @Assert\True(message="Your password must not contain your email", groups={"registration"})
      */
     public function isPasswordValid(){
         return 0 === preg_match('/'.preg_quote($this->email).'/i',$this->rawPassword);
@@ -614,4 +625,5 @@ class User implements AdvancedUserInterface, Serializable
     {
         return $this->ownedCars;
     }
+
 }

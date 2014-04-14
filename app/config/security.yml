@@ -14,17 +14,17 @@ security:
         dev:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        login:
-            pattern:  ^/api/v1/login$
-            security: false
+#        login: MUST BE SECURE IN ORDER TO LET SF DO THE AUTHENTICATION
+#            pattern:  ^/api/v1/login$
+#            security: false
         doc:
             pattern:  ^/api/v1/doc
             security: false
-        new_account:
-            pattern: ^/api/v1/account/new
-            security: false
+#        new_account:
+#            pattern: ^/api/v1/accounts$
+#            security: false
         account_confirm:
-            pattern: ^/api/v1/account/confirm
+            pattern: ^/api/v1/account/confirm$
             security: false
         secured_area:
             pattern:   ^/
@@ -39,4 +39,5 @@ security:
 
     access_control:
             - { path: ^/api/v1/rides, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
+            - { path: ^/api/v1/accounts, role: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
             - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }

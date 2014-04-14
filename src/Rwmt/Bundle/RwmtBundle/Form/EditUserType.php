@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class UserType extends AbstractType
+class EditUserType extends AbstractType
 {
         /**
      * @param FormBuilderInterface $builder
@@ -20,7 +20,6 @@ class UserType extends AbstractType
             ->add('phone')
             ->add('firstName')
             ->add('lastName')
-            ->add('rawPassword')
         ;
     }
 
@@ -32,7 +31,7 @@ class UserType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'Rwmt\Bundle\RwmtBundle\Entity\User',
             'csrf_protection'   => false,
-            'validation_groups' => array('registration', 'Default')
+            'validation_groups' => array('Default')
         ));
     }
 
@@ -41,6 +40,6 @@ class UserType extends AbstractType
      */
     public function getName()
     {
-        return 'rwmt_bundle_rwmtbundle_user';
+        return 'rwmt_bundle_rwmtbundle_edit_user';
     }
 }

@@ -17,7 +17,7 @@
 
 namespace Rwmt\Bundle\RwmtBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\FOSRestController;
 
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +29,7 @@ use Rwmt\Bundle\RwmtBundle\Form\UserType;
 use Rwmt\Bundle\RwmtBundle\Entity\User;
 use \Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiRegistrationController extends Controller
+class ApiRegistrationController extends FOSRestController
 {
 
     /**
@@ -39,7 +39,7 @@ class ApiRegistrationController extends Controller
      *
      * @param Request $request The current request
      *
-     * @Post("account/new")
+     * @Post("accounts")
      * @ApiDoc(parameters={
      *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
      *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},
@@ -116,7 +116,7 @@ class ApiRegistrationController extends Controller
      *
      * @Put("account/confirm")
      * @ApiDoc(parameters={
-     *  {"name"="token", "dataType"="string", "required"=true, "description"="The token received over email at registration."}     *
+     *  {"name"="token", "dataType"="string", "required"=true, "description"="The token received over email at registration."}
      *  })
      */
     public function putConfirmAccountAction(Request $request)
@@ -153,6 +153,29 @@ class ApiRegistrationController extends Controller
         $response->setStatusCode(Codes::HTTP_NO_CONTENT);
 
         return $response;
+    }
+
+    /**
+     * postLogin
+     *
+     * Login into an user account
+     *
+     *
+     * @Post("login")
+     * @ApiDoc(parameters={
+     *
+     *  })
+     */
+    public function postLoginAction(Request $request)
+    {
+        /* @var $user User */
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$user->isCredentialsNonExpired() || !$user->isAccountNonLocked() || !$user->isAccountNonExpired() || !$user->isEnabled()){
+            throw new HttpException(403);
+        }
+
+        return array('user'=>$user);
     }
 
     /*

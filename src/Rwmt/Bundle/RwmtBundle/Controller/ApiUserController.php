@@ -284,4 +284,100 @@ class ApiUserController extends Controller
             return $response; //FIX ME
         }
     }
+
+
+    /**
+     * gets an user account
+     *
+     * @ApiDoc(parameters={})
+     * )
+     */
+    public function getAccountAction(Request $request, $id)
+    {
+        try{
+            $user = $this->get('security.context')->getToken()->getUser();
+            if($user->getId() != $id){
+                //This could evolve in the future to allow ROLE_ADMIN to edit any account
+                throw new HttpException(404, 'User cannot be found!');
+            }
+
+            return array('user'=>$user);
+
+        } catch (HttpException $e) {
+            $response = new Response();
+            $response->setStatusCode($e->getStatusCode());
+            $response->setContent($e->getMessage());
+
+            return $response; //FIX ME
+        }
+    }
+
+    /**
+     * update an user account
+     *
+     *
+     * @ApiDoc(parameters={
+     *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
+     *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},     *
+     *  {"name"="phone", "dataType"="string", "required"=true, "description"="The phone number of the user"},
+     *  {"name"="firstName", "dataType"="string", "required"=true, "description"="The first name of the user"},
+     *  {"name"="lastName", "dataType"="string", "required"=true, "description"="The last name of the user"},
+     *  })
+     * )
+     */
+    public function putAccountAction(Request $request, $id)
+    {
+        try{
+            $user = $this->get('security.context')->getToken()->getUser();
+
+            if($user->getId() != $id){
+                //This could evolve in the future to allow ROLE_ADMIN to edit any account
+                throw new HttpException(404, 'User cannot be found!');
+            }
+
+            $form = $this->createForm(new \Rwmt\Bundle\RwmtBundle\Form\EditUserType(), $user);
+
+            $form->submit($request->request->all());
+
+            if ($form->isValid()) {
+
+                $factory = $this->get('security.encoder_factory');
+                $encoder = $factory->getEncoder($user);
+                $user->encodePassword($encoder);
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->flush();
+
+                /*
+                 * The email sending should be moved to a background task
+                 */
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('RWMT Account updated')
+                    ->setFrom('no-reply@ridewithme.today')
+                    ->setTo($user->getEmail())
+                    ->setBody(
+                        $this->renderView(
+                            'RwmtBundle:API\register:updateAccount.email.twig',
+                            array('user' => $user)
+                        )
+                    );
+                $this->get('mailer')->send($message);
+
+                $response = new Response();
+                $response->setStatusCode(Codes::HTTP_OK);
+
+                return $response;
+            }else{
+                throw new HttpException(400, $form->getErrors(true, true));
+            }
+
+        }catch(HttpException $e){
+            $response = new Response();
+            $response->setStatusCode($e->getStatusCode());
+            $response->setContent($e->getMessage());
+
+            return $response; //FIX ME
+        }
+    }
 }
