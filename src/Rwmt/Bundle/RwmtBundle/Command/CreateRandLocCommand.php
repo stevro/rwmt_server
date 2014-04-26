@@ -36,8 +36,8 @@ class CreateRandLocCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('rwmt:createRandLoc')
-            ->setDescription('Create random locations');
-
+            ->setDescription('Create random locations')
+            ->addArgument('total', InputArgument::REQUIRED, 'How many random locations you want to generate?');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -52,13 +52,20 @@ class CreateRandLocCommand extends ContainerAwareCommand
 
             //prepare dependencies
             //maybe use dependency injection for this in the future
-            $this->em = $this->getContainer()->get('doctrine')->getEntityManager('default');
+            /* @var $em \Doctrine\ORM\EntityManager */
+            $em = $this->getContainer()->get('doctrine')->getEntityManager('default');
+            $em->getFilters()->disable('multi_tenant');
+
+            $max = $input->getArgument('total');
+
+            //get a user
+            $user = $em->getRepository('RwmtBundle:User')->findOneBy(array('username'=>'stev'));
 
             /*
              * this solves the memory leak for the flush method runned in sf2
              * to be used only in commands and not in controllers as there it's being disabled by using the prod env
              */
-            $this->em->getConnection()->getConfiguration()->setSQLLogger(null);
+            $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
 //            $N = array('long'=>51.687882,'lat'=>-0.14087);
 //            $S = array('long'=>51.319026,'lat'=>-0.153916);
@@ -72,7 +79,7 @@ class CreateRandLocCommand extends ContainerAwareCommand
 
             $batchSize = 50;
 
-            for($i=0;$i<=1000000;$i++){
+            for($i=0;$i<=$max;$i++){
                 $lat = 0; //51.319026, 51.687882
                 $long = -1000; //-0.607102,0.330856
 
@@ -108,19 +115,27 @@ class CreateRandLocCommand extends ContainerAwareCommand
 //                    }
 //                }
 
+                $rideToUser = new \Rwmt\Bundle\RwmtBundle\Entity\RideToUser();
                 $ride = new \Rwmt\Bundle\RwmtBundle\Entity\Ride();
+
+                $rideToUser->setUser($user);
+                $rideToUser->setRide($ride);
+
                 $ride->setFromAddress($fromAddress);
                 $ride->setToAddress($toAddress);
                 $ride->setToLat($toLat);
-                $ride->setToLong($toLong);
+                $ride->setToLng($toLong);
                 $ride->setFromLat($fromLat);
-                $ride->setFromLong($fromLong);
-                $ride->setUserId(19);
-                $this->em->persist($ride);
-                 $this->output->writeln("New Ride with: FROM: $fromAddress, TO: $toAddress, toLat: $toLat, toLong: $toLong, fromLat: $fromLat, fromLong: $fromLong ");
+                $ride->setFromLng($fromLong);
+                $ride->setOwner($user);
+                $ride->setTenant($user->getTenant());
+                $ride->setPickupDateTime(new \DateTime());
+                $em->persist($rideToUser);
+                
+                $this->output->writeln("New Ride with: FROM: $fromAddress, TO: $toAddress, toLat: $toLat, toLong: $toLong, fromLat: $fromLat, fromLong: $fromLong ");
                 if (($i % $batchSize) === 0) {
-                    $this->em->flush(); // Executes all updates.
-                    $this->em->clear(); // Detaches all objects from Doctrine!
+                    $em->flush(); // Executes all updates.
+                    $em->clear(); // Detaches all objects from Doctrine!
                     $this->output->writeln("Total rides so far: $i");
                     #echo "Memory usage during: " . (memory_get_usage() / 1024) . " KB" . PHP_EOL;
                     #$e = microtime(true);
@@ -128,8 +143,8 @@ class CreateRandLocCommand extends ContainerAwareCommand
                 }
 
             }
-             $this->em->flush();
-              $this->output->writeln("Total rides $i");
+        $em->flush();
+        $this->output->writeln("Total rides $i");
         #echo "Memory usage after: " . (memory_get_usage() / 1024) . " KB" . PHP_EOL;
         $e = microtime(true);
         $seconds = round($e - $s, 2);
@@ -188,35 +203,35 @@ class CreateRandLocCommand extends ContainerAwareCommand
     /*
      * FIX ME - The locking mechanism consumes ~10KB per record
      */
-    protected function check(IterableResult $sentItems, CheckMsgService $checkMsg) //nu mai da SendMsg ca parametru si verifica memory leakul
-    {
-        $batchSize = 20;
-        $i = 0;
-
-        while(($row = $sentItems->next()) !== false) {
-            $sentItem = $row[0];
-            $sentItem->setIsLocked(true);
-
-            /*
-             * This will cause a memory leak if SQLLogging is enabled in Doctrine
-             * I've disabled it $this->em->getConnection()->getConfiguration()->setSQLLogger(null); in execute method above
-             */
-            $this->em->flush();
-
-            $sentItem = $checkMsg->checkSingleMsg($sentItem); //update the message status ... this takes aprox 100ms...and a memory leak of ~2KB
-            $sentItem->setIsLocked(false);
-            if (($i % $batchSize) === 0) {
-                $this->em->flush(); // Executes all updates.
-                $this->em->clear(); // Detaches all objects from Doctrine!
-
-                #echo "Memory usage during: " . (memory_get_usage() / 1024) . " KB" . PHP_EOL;
-                #$e = microtime(true);
-                #echo ' Updated  '. $i. ' messages in ' . ($e - $s) . ' seconds' . PHP_EOL;
-            }
-            ++$i;
-        }
-        $this->em->flush();
-
-        $this->output->writeln("Processing $i message(s) finished!");
-    }
+//    protected function check(IterableResult $sentItems, CheckMsgService $checkMsg) //nu mai da SendMsg ca parametru si verifica memory leakul
+//    {
+//        $batchSize = 20;
+//        $i = 0;
+//
+//        while(($row = $sentItems->next()) !== false) {
+//            $sentItem = $row[0];
+//            $sentItem->setIsLocked(true);
+//
+//            /*
+//             * This will cause a memory leak if SQLLogging is enabled in Doctrine
+//             * I've disabled it $this->em->getConnection()->getConfiguration()->setSQLLogger(null); in execute method above
+//             */
+//            $this->em->flush();
+//
+//            $sentItem = $checkMsg->checkSingleMsg($sentItem); //update the message status ... this takes aprox 100ms...and a memory leak of ~2KB
+//            $sentItem->setIsLocked(false);
+//            if (($i % $batchSize) === 0) {
+//                $this->em->flush(); // Executes all updates.
+//                $this->em->clear(); // Detaches all objects from Doctrine!
+//
+//                #echo "Memory usage during: " . (memory_get_usage() / 1024) . " KB" . PHP_EOL;
+//                #$e = microtime(true);
+//                #echo ' Updated  '. $i. ' messages in ' . ($e - $s) . ' seconds' . PHP_EOL;
+//            }
+//            ++$i;
+//        }
+//        $this->em->flush();
+//
+//        $this->output->writeln("Processing $i message(s) finished!");
+//    }
 }
