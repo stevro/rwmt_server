@@ -369,9 +369,16 @@ class Ride implements MultiTenant
         return $this->users;
     }
 
+    /**
+     * Sets the owner and the tenant
+     * @param \Rwmt\Bundle\RwmtBundle\Entity\User $owner
+     * @return \Rwmt\Bundle\RwmtBundle\Entity\Ride
+     */
     public function setOwner(\Rwmt\Bundle\RwmtBundle\Entity\User $owner)
     {
         $this->owner = $owner;
+        $this->setTenant($owner->getTenant());
+
         return $this;
     }
 
