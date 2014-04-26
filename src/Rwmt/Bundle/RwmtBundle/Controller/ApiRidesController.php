@@ -142,6 +142,13 @@ class ApiRidesController extends Controller
             if ($form->isValid()) {
                 $em = $this->getDoctrine()->getManager();
 
+                //TO-DO: FIX ME
+                //THIS IS STUFF IS NOT SO OK
+                $tenantId = $em->getFilters()->getFilter('multi_tenant')->getParameter('tenantId');
+                $tenant = $em->getRepository('RwmtBundle:Tenant')->findOneBy(array('id'=>str_replace("'", "", $tenantId)));
+                $ride->setTenant($tenant);
+                //END OF JMEN
+
                 $em->persist($ride);
 
                 $em->flush();

@@ -19,12 +19,13 @@ use JMS\Serializer\Annotation\Expose;
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="UserRepository")
+ * @ORM\EntityListeners({"Rwmt\Bundle\RwmtBundle\EntityListener\MultiTenantEntityListener"})
  * @UniqueEntity(fields="email", message="Email already registered")
  * @UniqueEntity(fields="username", message="Username already taken")
  *
  * @ExclusionPolicy("all")
  */
-class User implements AdvancedUserInterface, Serializable
+class User implements AdvancedUserInterface, Serializable, MultiTenant
 {
     /**
      * @var integer
@@ -163,6 +164,21 @@ class User implements AdvancedUserInterface, Serializable
     private $roles;
 
     /**
+     *
+     * @var string
+     * @ORM\Column(name="tenant_id", type="integer")
+     */
+    private $tenantId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Rwmt\Bundle\RwmtBundle\Entity\Tenant", inversedBy="usersOwned")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="tenant_id", referencedColumnName="id" )
+     * })
+     */
+    private $tenant;
+
+    /**
      * @var Car
      *
      * @ORM\OneToMany(targetEntity="Car", mappedBy="owner")
@@ -177,8 +193,6 @@ class User implements AdvancedUserInterface, Serializable
         $this->confirmationToken = $this->generateRandomString();
         $this->rides = new ArrayCollection();
         $this->roles = new ArrayCollection();
-
-
     }
 
     /**
@@ -625,5 +639,31 @@ class User implements AdvancedUserInterface, Serializable
     {
         return $this->ownedCars;
     }
+
+    public function getTenant()
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(Tenant $tenant)
+    {
+        $this->tenant = $tenant;
+        return $this;
+    }
+
+    public function getTenantId()
+    {
+        return $this->tenantId;
+    }
+
+    public function setTenantId($tenantId)
+    {
+        $this->tenantId = $tenantId;
+        return $this;
+    }
+
+
+
+
 
 }

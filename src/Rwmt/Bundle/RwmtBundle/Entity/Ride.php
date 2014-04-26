@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  *
  */
-class Ride
+class Ride implements MultiTenant
 {
     /**
      * @var integer
@@ -152,6 +152,21 @@ class Ride
      * @ORM\Column(name="recursive_days", type="string", length=255, nullable=true)
      */
     private $recursiveDays;
+
+    /**
+     *
+     * @var string
+     * @ORM\Column(name="tenant_id", type="integer")
+     */
+    private $tenantId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Rwmt\Bundle\RwmtBundle\Entity\Tenant", inversedBy="usersOwned")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="tenant_id", referencedColumnName="id" )
+     * })
+     */
+    private $tenant;
 
     public function __construct()
     {
@@ -475,4 +490,27 @@ class Ride
     {
         return $this->recursiveDays;
     }
+
+    public function getTenant()
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(Tenant $tenant)
+    {
+        $this->tenant = $tenant;
+        return $this;
+    }
+
+    public function getTenantId()
+    {
+        return $this->tenantId;
+    }
+
+    public function setTenantId($tenantId)
+    {
+        $this->tenantId = $tenantId;
+        return $this;
+    }
+
 }

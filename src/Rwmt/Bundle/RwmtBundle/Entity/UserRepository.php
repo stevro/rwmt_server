@@ -47,17 +47,24 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        $class = get_class($user);
-        if (!$this->supportsClass($class)) {
-            throw new UnsupportedUserException(
-                sprintf(
-                    'Instances of "%s" are not supported.',
-                    $class
-                )
-            );
-        }
 
-        return $this->find($user->getId());
+        // this is used for storing authentication in the session
+        // but in this example, the token is sent in each request,
+        // so authentication can be stateless. Throwing this exception
+        // is proper to make things stateless
+        throw new UnsupportedUserException();
+        
+//        $class = get_class($user);
+//        if (!$this->supportsClass($class)) {
+//            throw new UnsupportedUserException(
+//                sprintf(
+//                    'Instances of "%s" are not supported.',
+//                    $class
+//                )
+//            );
+//        }
+//
+//        return $this->find($user->getId());
     }
 
     public function supportsClass($class)
