@@ -2,6 +2,11 @@ parameters:
 #    rwmt.example.class: Rwmt\Bundle\RwmtBundle\Example
 
 services:
+    kernel.listener.tenant_listener:
+        class: Rwmt\Bundle\RwmtBundle\EventListener\TenantListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+        arguments: [@doctrine.orm.entity_manager]
 #    app.filter_manager:
 #            class: Rwmt\Bundle\RwmtBundle\Services\DoctrineSqlFilterConfigurator
 #            arguments: [@doctrine.orm.entity_manager]
