@@ -2,6 +2,7 @@
 
 namespace Rwmt\Bundle\RwmtBundle\Controller;
 
+
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -16,13 +17,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiRidesController extends Controller
+class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
 {
 
     /**
      * Retrieves all rides
      * @ApiDoc()
-     * @View(template="RwmtBundle:API\rides:getRides.html.twig")
+     * @View()
      *
      */
     public function getRidesAction()

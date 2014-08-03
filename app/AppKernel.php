@@ -16,12 +16,18 @@ class AppKernel extends Kernel
             new Symfony\Bundle\AsseticBundle\AsseticBundle(),
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
-            new Rwmt\Bundle\RwmtBundle\RwmtBundle(),
-            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new FOS\RestBundle\FOSRestBundle(),
-            new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
+            new Liip\CacheControlBundle\LiipCacheControlBundle(),
+            new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
+            new Hautelook\TemplatedUriBundle\HautelookTemplatedUriBundle(),
+            new Bazinga\Bundle\RestExtraBundle\BazingaRestExtraBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            #new Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle(),
+            #new Mmoreram\GearmanBundle\GearmanBundle(),
+            new Rwmt\Bundle\RwmtBundle\RwmtBundle()
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
