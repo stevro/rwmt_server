@@ -26,8 +26,13 @@ class TenantListener
 
     public function onKernelRequest(\Symfony\Component\HttpKernel\Event\GetResponseEvent $event)
     {
-        if('cli' === php_sapi_name()){
+        $request = $event->getRequest();
+
+        $apiKey = $request->headers->get('rwmt-auth');
+
+        if(null === $apiKey || 'cli' === php_sapi_name()){
             return;
+            #throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'You must provide an API KEY!',null, array('Rwmt-Auth-Status' => 'Required'));
         }
 
         $conf = $this->em->getConfiguration();
@@ -37,14 +42,6 @@ class TenantListener
         );
 
         $filter = $this->em->getFilters()->enable('multi_tenant');
-
-        $request = $event->getRequest();
-
-        $apiKey = $request->headers->get('rwmt-auth');
-
-        if(null === $apiKey){
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'You must provide an API KEY!',null, array('Rwmt-Auth-Status' => 'Required'));
-        }
 
         $tenant = $this->em->getRepository('RwmtBundle:Tenant')->findOneBy(array('apiKey' => $apiKey));
 
