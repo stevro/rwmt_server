@@ -22,7 +22,9 @@ class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
 
     /**
      * Retrieves all rides
-     * @ApiDoc()
+     * @ApiDoc(
+     * section="Ride"
+     * )
      * @View()
      *
      */
@@ -44,7 +46,9 @@ class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
 
     /**
      * Retrieves all nearby rides
-     * @ApiDoc()
+     * @ApiDoc(
+     * section="Ride"
+     * )
      * @View(template="RwmtBundle:API\rides:getClosestRidesByDistance.html.twig")
      * @Get("rides/closest/long/{long}/lat/{lat}/range/{range}/limit/{limit}");
      * #47.152763,27.588426 | lat - long
@@ -69,7 +73,9 @@ class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
 
     /**
      * Retrieves one ride
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Ride",
+     * parameters={
      *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the ride you want to retrieve"},
      * })
      * @param string $id
@@ -110,7 +116,9 @@ class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
      * @param Request $request The current request
      *
      * @View(template="RwmtBundle:API\Rides:postRides.html.twig")
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Ride",
+     * parameters={
      *  {"name"="fromAddress", "dataType"="string", "required"=true, "description"="The start address of the ride"},
      *  {"name"="toAddress", "dataType"="string", "required"=true, "description"="The end address of the ride"},
      *  {"name"="fromLat", "dataType"="double", "required"=true, "description"="The latitude of the from address"},

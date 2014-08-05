@@ -19,6 +19,7 @@ class ApiUserController extends Controller
     /**
      * Requests to join a ride
      * @ApiDoc(
+     * section="User",
      * requirements={
      *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the ride you want to join"},
      * },
@@ -99,7 +100,9 @@ class ApiUserController extends Controller
 
     /**
      * Retrieves all rides of a user
-     * @ApiDoc()
+     * @ApiDoc(
+     * section="User"
+     * )
      * @View(template="RwmtBundle:API\userRides:getUserAllRides.html.twig")
      * @Get("users/rides/");
      */
@@ -129,7 +132,9 @@ class ApiUserController extends Controller
 
     /**
      * Retrieves one ride of a user
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="User",
+     * parameters={
      *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the user ride you want to read"},
      * })
      * @param string $id
@@ -165,7 +170,9 @@ class ApiUserController extends Controller
 
     /**
      * Retrieves one car of a user
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Car",
+     * parameters={
      *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the car you want to read"},
      * })
      * @param string $id
@@ -202,7 +209,9 @@ class ApiUserController extends Controller
 
     /**
      * Retrieves all cars of a user
-     * @ApiDoc()
+     * @ApiDoc(
+     * section="Car"
+     * )
      * @param string $id
      * @View()
      */
@@ -233,7 +242,9 @@ class ApiUserController extends Controller
 
     /**
      * Add a new car
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Car",
+     * parameters={
      *  {"name"="maker", "dataType"="string", "required"=true, "description"="The car manufacturer desired"},
      *  {"name"="model", "dataType"="string", "required"=true, "description"="The model of the new car"},
      *  {"name"="color", "dataType"="string", "required"=true, "description"="The color of the new car"},
@@ -289,7 +300,10 @@ class ApiUserController extends Controller
     /**
      * gets an user account
      *
-     * @ApiDoc(parameters={})
+     * @ApiDoc(
+     * section="Account",
+     * parameters={}
+     * )
      * )
      */
     public function getAccountAction(Request $request, $id)
@@ -316,7 +330,9 @@ class ApiUserController extends Controller
      * update an user account
      *
      *
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Account",
+     * parameters={
      *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
      *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},     *
      *  {"name"="phone", "dataType"="string", "required"=true, "description"="The phone number of the user"},

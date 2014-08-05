@@ -40,7 +40,9 @@ class ApiRegistrationController extends FOSRestController
      * @param Request $request The current request
      *
      * @Post("accounts")
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Account",
+     * parameters={
      *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
      *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},
      *  {"name"="rawPassword", "dataType"="string", "required"=true, "description"="The password in plain text"},
@@ -123,7 +125,9 @@ class ApiRegistrationController extends FOSRestController
      * @param string token The token
      *
      * @Put("account/confirm")
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Account",
+     * parameters={
      *  {"name"="token", "dataType"="string", "required"=true, "description"="The token received over email at registration."}
      *  })
      */
@@ -170,7 +174,9 @@ class ApiRegistrationController extends FOSRestController
      *
      *
      * @Post("login")
-     * @ApiDoc(parameters={
+     * @ApiDoc(
+     * section="Account",
+     * parameters={
      *
      *  })
      */

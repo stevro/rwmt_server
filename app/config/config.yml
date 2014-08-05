@@ -84,7 +84,11 @@ fos_rest:
         json: true
     body_listener: true
 
-nelmio_api_doc: ~
+nelmio_api_doc:
+    sandbox:
+        authentication:
+                delivery: header
+                name: Rwmt-Auth
 
 
 sensio_framework_extra:

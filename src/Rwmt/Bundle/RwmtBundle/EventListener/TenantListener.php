@@ -30,27 +30,26 @@ class TenantListener
 
         $apiKey = $request->headers->get('rwmt-auth');
 
-        if(null === $apiKey || 'cli' === php_sapi_name()){
+        if (null === $apiKey || 'cli' === php_sapi_name()) {
             return;
             #throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'You must provide an API KEY!',null, array('Rwmt-Auth-Status' => 'Required'));
         }
 
         $conf = $this->em->getConfiguration();
         $conf->addFilter(
-            'multi_tenant',
-            'Rwmt\Bundle\RwmtBundle\DoctrineFilters\MultiTenantFilter'
+                'multi_tenant', 'Rwmt\Bundle\RwmtBundle\DoctrineFilters\MultiTenantFilter'
         );
 
         $filter = $this->em->getFilters()->enable('multi_tenant');
 
         $tenant = $this->em->getRepository('RwmtBundle:Tenant')->findOneBy(array('apiKey' => $apiKey));
 
-        if(!$tenant){
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'Wrong API KEY!', null, array('Rwmt-Auth-Status' => 'Invalid'));
+        if (!$tenant) {
+            throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'Wrong API KEY!', null,
+            array('Rwmt-Auth-Status' => 'Invalid'));
         }
 
         $filter->setParameter('tenantId', $tenant->getId(), 'integer');
-
     }
 
 }
