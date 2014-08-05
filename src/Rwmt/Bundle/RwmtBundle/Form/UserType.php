@@ -8,19 +8,20 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class UserType extends AbstractType
 {
-        /**
+
+    /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
-            ->add('email')
-            ->add('phone')
-            ->add('firstName')
-            ->add('lastName')
-            ->add('rawPassword')
+                ->add('username')
+                ->add('email')
+                ->add('phone')
+                ->add('firstName')
+                ->add('lastName')
+                ->add('rawPassword')
         ;
     }
 
@@ -31,7 +32,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'Rwmt\Bundle\RwmtBundle\Entity\User',
-            'csrf_protection'   => false,
+            'csrf_protection' => false,
             'validation_groups' => array('registration', 'Default')
         ));
     }
@@ -43,4 +44,5 @@ class UserType extends AbstractType
     {
         return 'rwmt_bundle_rwmtbundle_user';
     }
+
 }

@@ -8,18 +8,20 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class EditUserType extends AbstractType
 {
-        /**
+
+    /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
-            ->add('email')
-            ->add('phone')
-            ->add('firstName')
-            ->add('lastName')
+                ->add('username')
+                ->add('email')
+                ->add('phone')
+                ->add('firstName')
+                ->add('lastName')
+                ->add('gravatarHash')
         ;
     }
 
@@ -30,7 +32,7 @@ class EditUserType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'Rwmt\Bundle\RwmtBundle\Entity\User',
-            'csrf_protection'   => false,
+            'csrf_protection' => false,
             'validation_groups' => array('Default')
         ));
     }
@@ -40,6 +42,7 @@ class EditUserType extends AbstractType
      */
     public function getName()
     {
-        return 'rwmt_bundle_rwmtbundle_edit_user';
+        return 'EditAccount';
     }
+
 }

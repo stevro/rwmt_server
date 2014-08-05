@@ -244,6 +244,7 @@ class ApiUserController extends Controller
      * Add a new car
      * @ApiDoc(
      * section="Car",
+     * input="Rwmt\Bundle\RwmtBundle\Form\CarType",
      * parameters={
      *  {"name"="maker", "dataType"="string", "required"=true, "description"="The car manufacturer desired"},
      *  {"name"="model", "dataType"="string", "required"=true, "description"="The model of the new car"},
@@ -332,9 +333,10 @@ class ApiUserController extends Controller
      *
      * @ApiDoc(
      * section="Account",
+     * input="Rwmt\Bundle\RwmtBundle\Form\EditUserType",
      * parameters={
      *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
-     *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},     *
+     *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},
      *  {"name"="phone", "dataType"="string", "required"=true, "description"="The phone number of the user"},
      *  {"name"="firstName", "dataType"="string", "required"=true, "description"="The first name of the user"},
      *  {"name"="lastName", "dataType"="string", "required"=true, "description"="The last name of the user"},

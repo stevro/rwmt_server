@@ -44,7 +44,7 @@ class Car
     /**
      * @var string
      *
-     * @ORM\Column(name="maker", type="string", length=255)
+     * @ORM\Column(name="maker", type="string", length=30)
      * @Assert\NotBlank(message="Car maker must not be blank")
      */
     private $maker;
@@ -52,7 +52,7 @@ class Car
     /**
      * @var string
      *
-     * @ORM\Column(name="model", type="string", length=255)
+     * @ORM\Column(name="model", type="string", length=30)
      * @Assert\NotBlank(message="Car model must not be blank")
      */
     private $model;
@@ -60,7 +60,7 @@ class Car
     /**
      * @var string
      *
-     * @ORM\Column(name="color", type="string", length=255)
+     * @ORM\Column(name="color", type="string", length=20)
      * @Assert\NotBlank(message="Car color must not be blank")
      */
     private $color;
@@ -83,7 +83,7 @@ class Car
     /**
      * @var string
      *
-     * @ORM\Column(name="licence_plate", type="string", length=50)
+     * @ORM\Column(name="licence_plate", type="string", length=20)
      * @Assert\NotBlank(message="Licence plate must not be blank")
      */
     private $licencePlate;

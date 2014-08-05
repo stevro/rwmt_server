@@ -27,6 +27,7 @@ use JMS\Serializer\Annotation\Expose;
  */
 class User implements AdvancedUserInterface, Serializable, MultiTenant
 {
+
     /**
      * @var integer
      *
@@ -41,7 +42,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      * @var string
      *
      * @Assert\NotBlank(message="Username must not be blank")
-     * @ORM\Column(name="username", type="string", length=255)
+     * @ORM\Column(name="username", type="string", length=50)
      * @Expose
      */
     private $username;
@@ -52,7 +53,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      * @Assert\NotBlank(message="Email must not be blank")
      * @Assert\Length(min=3,max=50)
      * @Assert\Email()
-     * @ORM\Column(name="email", type="string", length=255)
+     * @ORM\Column(name="email", type="string", length=50)
      * @Expose
      */
     private $email;
@@ -61,7 +62,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      * @var string
      *
      * @Assert\NotBlank(message="Phone must not be blank")
-     * @ORM\Column(name="phone", type="string", length=255)
+     * @ORM\Column(name="phone", type="string", length=20)
      * @Expose
      */
     private $phone;
@@ -70,7 +71,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      * @var string
      *
      * @Assert\NotBlank(message="Firstname must not be blank")
-     * @ORM\Column(name="first_name", type="string", length=255)
+     * @ORM\Column(name="first_name", type="string", length=50)
      * @Expose
      */
     private $firstName;
@@ -79,7 +80,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      * @var string
      *
      * @Assert\NotBlank(message="Lastname must not be blank")
-     * @ORM\Column(name="last_name", type="string", length=255)
+     * @ORM\Column(name="last_name", type="string", length=50)
      * @Expose
      */
     private $lastName;
@@ -94,7 +95,7 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
     /**
      * @var string $salt
      *
-     * @ORM\Column(name="salt", type="string", length=40)
+     * @ORM\Column(name="salt", type="string", length=50)
      */
     private $salt;
 
@@ -186,9 +187,16 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
      */
     private $ownedCars;
 
+    /**
+     *
+     * @var string
+     * @ORM\Column(name="gravatar_hash", type="string", length=50, nullable=true)
+     */
+    private $gravatarHash;
+
     public function __construct()
     {
-        $this->salt = sha1(uniqid().microtime().rand(0, 999999));
+        $this->salt = sha1(uniqid() . microtime() . rand(0, 999999));
         $this->isActive = 0;
         $this->confirmationToken = $this->generateRandomString();
         $this->rides = new ArrayCollection();
@@ -444,39 +452,45 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
         return $this;
     }
 
-     public function __toString()
+    public function __toString()
     {
         return $this->username;
     }
 
-     /**
+    /**
      *
      * @Assert\True(message="Your password must not contain your email", groups={"registration"})
      */
-    public function isPasswordValid(){
-        return 0 === preg_match('/'.preg_quote($this->email).'/i',$this->rawPassword);
+    public function isPasswordValid()
+    {
+        return 0 === preg_match('/' . preg_quote($this->email) . '/i', $this->rawPassword);
     }
 
-    public function getRoles(){
+    public function getRoles()
+    {
         return $this->roles->toArray();
     }
 
-    public function eraseCredentials() {
+    public function eraseCredentials()
+    {
         $this->rawPassword = null;
     }
 
-    public function encodePassword(PasswordEncoderInterface $encoder){
-        if($this->rawPassword){
+    public function encodePassword(PasswordEncoderInterface $encoder)
+    {
+        if ($this->rawPassword) {
             $this->password = $encoder->encodePassword($this->rawPassword, $this->salt);
             $this->eraseCredentials();
         }
     }
 
-    public function serialize(){
+    public function serialize()
+    {
         return serialize($this);
     }
 
-    public function unserialize($serialized) {
+    public function unserialize($serialized)
+    {
         return unserialize($serialized);
     }
 
@@ -502,7 +516,8 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
         return $this;
     }
 
-    public function generateRandomString($length = 10) {
+    public function generateRandomString($length = 10)
+    {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
@@ -536,7 +551,6 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
     {
         return $this->isActive;
     }
-
 
     /**
      * Add rides
@@ -662,8 +676,14 @@ class User implements AdvancedUserInterface, Serializable, MultiTenant
         return $this;
     }
 
+    public function getGravatarHash()
+    {
+        return $this->gravatarHash;
+    }
 
-
-
+    public function setGravatarHash($gravatarHash)
+    {
+        $this->gravatarHash = $gravatarHash;
+    }
 
 }
