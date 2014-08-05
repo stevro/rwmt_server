@@ -16,12 +16,12 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-                ->add('username')
-                ->add('email')
-                ->add('phone')
-                ->add('firstName')
-                ->add('lastName')
-                ->add('rawPassword')
+                ->add('username', 'text', array('required'=>'true', 'description'=>'The username desired'))
+                ->add('email', 'text', array('required'=>'true', 'description'=>'The email of the new user'))
+                ->add('phone', 'text', array('required'=>'true', 'description'=>'The password in plain text'))
+                ->add('firstName', 'text', array('required'=>'true', 'description'=>'The phone number of the user'))
+                ->add('lastName', 'text', array('required'=>'true', 'description'=>'The first name of the user'))
+                ->add('rawPassword', 'text', array('required'=>'true', 'description'=>'The last name of the user'))
         ;
     }
 
@@ -42,7 +42,7 @@ class UserType extends AbstractType
      */
     public function getName()
     {
-        return 'rwmt_bundle_rwmtbundle_user';
+        return 'RegisterUser';
     }
 
 }

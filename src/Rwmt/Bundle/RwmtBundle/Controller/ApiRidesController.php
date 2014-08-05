@@ -2,10 +2,10 @@
 
 namespace Rwmt\Bundle\RwmtBundle\Controller;
 
-
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Util\Codes;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Rwmt\Bundle\RwmtBundle\Entity\Ride;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiRidesController extends \FOS\RestBundle\Controller\FOSRestController
+class ApiRidesController extends FOSRestController
 {
 
     /**

@@ -2,19 +2,25 @@
 
 namespace Rwmt\Bundle\RwmtBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Doctrine\ORM\Query;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Util\Codes;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Rwmt\Bundle\RwmtBundle\Entity\Ride;
+use Rwmt\Bundle\RwmtBundle\Entity\RideToUser;
+use Rwmt\Bundle\RwmtBundle\Form\EditUserType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Swift_Message;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiUserController extends Controller
+class ApiUserController extends FOSRestController
 {
     /**
      * Requests to join a ride
@@ -38,8 +44,8 @@ class ApiUserController extends Controller
 
             $user = $this->get('security.context')->getToken()->getUser();
             $em = $this->getDoctrine()->getManager();
-            /* @var $ride \Rwmt\Bundle\RwmtBundle\Entity\Ride */
-            $ride = $em->getRepository('RwmtBundle:Ride')->getRide($id, \Doctrine\ORM\Query::HYDRATE_OBJECT);
+            /* @var $ride Ride */
+            $ride = $em->getRepository('RwmtBundle:Ride')->getRide($id, Query::HYDRATE_OBJECT);
 
             //TO-DO: Move all this validations to somewhere else
             //Keep It Slim
@@ -57,7 +63,7 @@ class ApiUserController extends Controller
 
             //TO-DO: Move this update to somewhere else
             //Keep It Slim
-            $rideToUser = new \Rwmt\Bundle\RwmtBundle\Entity\RideToUser();
+            $rideToUser = new RideToUser();
             $rideToUser->setUser($user);
             $rideToUser->setRide($ride);
             $ride->setOccupiedSeats($ride->getOccupiedSeats() + 1);
@@ -68,7 +74,7 @@ class ApiUserController extends Controller
             * The email sending should be moved to a background task
             * //Keep It Slim
             */
-            $message = \Swift_Message::newInstance()
+            $message = Swift_Message::newInstance()
                ->setSubject('RWMT Ride Request')
                ->setFrom('no-reply@ridewithme.today')
                ->setTo($ride->getOwner()->getEmail())
@@ -168,134 +174,7 @@ class ApiUserController extends Controller
         }
     }
 
-    /**
-     * Retrieves one car of a user
-     * @ApiDoc(
-     * section="Car",
-     * parameters={
-     *  {"name"="id", "dataType"="integer", "required"=true, "description"="The id of the car you want to read"},
-     * })
-     * @param string $id
-     * @View()
-     */
-    public function getCarAction($id){
-        try{
-            if(!$id){
-                throw new HttpException(400, 'Id must be provided!');
-            }
 
-            $user = $this->get('security.context')->getToken()->getUser();
-
-            $em = $this->getDoctrine()->getManager();
-
-            $userCar = $em->getRepository('RwmtBundle:Car');
-
-            $car = $userCar->getUserCar($user->getId(), $id);
-
-            if($car === null){
-                throw new HttpException(404, 'Car could not be found!');
-            }
-            #var_dump($singleRide);die;
-            return array('cars'=>$car);
-        }
-        catch(HttpException $e){
-            $response = new Response();
-            $response->setStatusCode($e->getStatusCode());
-            $response->setContent($e->getMessage());
-
-            return $response; //FIX ME -- it returns an ugly message
-        }
-    }
-
-    /**
-     * Retrieves all cars of a user
-     * @ApiDoc(
-     * section="Car"
-     * )
-     * @param string $id
-     * @View()
-     */
-    public function getCarsAction(){
-        try{
-            $user = $this->get('security.context')->getToken()->getUser();
-
-            $em = $this->getDoctrine()->getManager();
-
-            $userCar = $em->getRepository('RwmtBundle:Car');
-
-            $car = $userCar->getUserCars($user->getId());
-
-            if($car === NULL){
-                throw new HttpException(404, 'Car could not be found!');
-            }
-            #var_dump($singleRide);die;
-            return array('cars'=>$car);
-        }
-        catch(HttpException $e){
-            $response = new Response();
-            $response->setStatusCode($e->getStatusCode());
-            $response->setContent($e->getMessage());
-
-            return $response; //FIX ME -- it returns an ugly message
-        }
-    }
-
-    /**
-     * Add a new car
-     * @ApiDoc(
-     * section="Car",
-     * input="Rwmt\Bundle\RwmtBundle\Form\CarType",
-     * parameters={
-     *  {"name"="maker", "dataType"="string", "required"=true, "description"="The car manufacturer desired"},
-     *  {"name"="model", "dataType"="string", "required"=true, "description"="The model of the new car"},
-     *  {"name"="color", "dataType"="string", "required"=true, "description"="The color of the new car"},
-     *  {"name"="year", "dataType"="string", "required"=true, "description"="The year when the car was produced"},
-     *  {"name"="licencePlate", "dataType"="string", "required"=true, "description"="The car's licence plate"},     *
-     *  })
-     * @View()
-     */
-    public function postCarAction(Request $request)
-    {
-        try{
-
-            $user = $this->get('security.context')->getToken()->getUser();
-
-            $car = new \Rwmt\Bundle\RwmtBundle\Entity\Car();
-            $car->setOwner($user);
-
-            $form = $this->createForm(new \Rwmt\Bundle\RwmtBundle\Form\CarType(), $car);
-            $form->submit($request->request->all());
-            #$form->get('userId')->submit($user);
-
-            if ($form->isValid()) {
-                $em = $this->getDoctrine()->getManager();
-
-                $em->persist($car);
-                $em->flush();
-
-                $url = $this->generateUrl('get_car',array('id' => $car->getId()), true);
-
-                $response = new Response();
-                $response->setStatusCode(Codes::HTTP_CREATED);
-                $response->headers->set('Location', $url);
-
-                return $response;
-            }else{
-                $response = new Response();
-                $response->setStatusCode(Codes::HTTP_BAD_REQUEST);
-                $response->setContent($form->getErrors(true, true));
-
-                return $response;
-            }
-        }
-        catch(HttpException $e){
-            $response = new Response();
-            $response->setStatusCode($e->getStatusCode());
-            $response->setContent($e->getMessage());
-
-            return $response; //FIX ME
-        }
-    }
 
 
     /**
@@ -353,7 +232,7 @@ class ApiUserController extends Controller
                 throw new HttpException(404, 'User cannot be found!');
             }
 
-            $form = $this->createForm(new \Rwmt\Bundle\RwmtBundle\Form\EditUserType(), $user);
+            $form = $this->createForm(new EditUserType(), $user);
 
             $form->submit($request->request->all());
 
@@ -370,7 +249,7 @@ class ApiUserController extends Controller
                 /*
                  * The email sending should be moved to a background task
                  */
-                $message = \Swift_Message::newInstance()
+                $message = Swift_Message::newInstance()
                     ->setSubject('RWMT Account updated')
                     ->setFrom('no-reply@ridewithme.today')
                     ->setTo($user->getEmail())

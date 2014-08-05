@@ -17,12 +17,12 @@ class CarType extends AbstractType
         $builder
             #->add('createdAt')
             #->add('updatedAt')
-            ->add('maker')
-            ->add('model')
-            ->add('color')
+            ->add('maker', 'text', array('required'=>'true', 'description'=>'The car manufacturer desired'))
+            ->add('model', 'text', array('required'=>'true', 'description'=>'The model of the new car'))
+            ->add('color', 'text', array('required'=>'true', 'description'=>'The color of the new car'))
             #->add('isActive')
-            ->add('year')
-            ->add('licencePlate')
+            ->add('year', 'text', array('required'=>'true', 'description'=>'The year when the car was produced'))
+            ->add('licencePlate', 'text', array('required'=>'true', 'description'=>"The car's licence plate"))
             #->add('userId')
             #->add('owner')
         ;
@@ -44,6 +44,6 @@ class CarType extends AbstractType
      */
     public function getName()
     {
-        return 'rwmt_bundle_rwmtbundle_car';
+        return 'Car';
     }
 }

@@ -8,12 +8,16 @@ rwmtRidesAPI:
   prefix: /api/v1
   resource: @RwmtBundle/Controller/ApiRidesController.php
 
+rwmtCarsAPI:
+  type: rest
+  prefix: /api/v1
+  resource: @RwmtBundle/Controller/ApiCarsController.php
 
 rwmtUserRidesAPI:
   type: rest
   prefix: /api/v1
   resource: @RwmtBundle/Controller/ApiUserController.php
-  
+
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"

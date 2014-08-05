@@ -18,7 +18,6 @@
 namespace Rwmt\Bundle\RwmtBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
-
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,79 +41,59 @@ class ApiRegistrationController extends FOSRestController
      * @Post("accounts")
      * @ApiDoc(
      * section="Account",
-     * parameters={
-     *  {"name"="username", "dataType"="string", "required"=true, "description"="The username desired"},
-     *  {"name"="email", "dataType"="string", "required"=true, "description"="The email of the new user"},
-     *  {"name"="rawPassword", "dataType"="string", "required"=true, "description"="The password in plain text"},
-     *  {"name"="phone", "dataType"="string", "required"=true, "description"="The phone number of the user"},
-     *  {"name"="firstName", "dataType"="string", "required"=true, "description"="The first name of the user"},
-     *  {"name"="lastName", "dataType"="string", "required"=true, "description"="The last name of the user"},
-     *  })
+     * input = "Rwmt\Bundle\RwmtBundle\Form\UserType",
+     * )
      *
      */
     public function postRegisterAction(Request $request)
     {
-        try{
-            $entity = new \Rwmt\Bundle\RwmtBundle\Entity\User();
-            $form = $this->createForm(new UserType(), $entity);
+        $entity = new \Rwmt\Bundle\RwmtBundle\Entity\User();
+        $form = $this->createForm(new UserType(), $entity);
 
-            $form->submit($request->request->all());
+        $form->submit($request);
 
-            if ($form->isValid()) {
+        if ($form->isValid()) {
 
-                $factory = $this->get('security.encoder_factory');
-                $encoder = $factory->getEncoder($entity);
-                $entity->encodePassword($encoder);
+            $factory = $this->get('security.encoder_factory');
+            $encoder = $factory->getEncoder($entity);
+            $entity->encodePassword($encoder);
 
-                $em = $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
-                //TO-DO: FIX ME
-                //THIS IS STUFF IS NOT SO OK
-                $tenantId = $em->getFilters()->getFilter('multi_tenant')->getParameter('tenantId');
-                $tenant = $em->getRepository('RwmtBundle:Tenant')->findOneBy(array('id'=>str_replace("'", "", $tenantId)));
-                $entity->setTenant($tenant);
-                //END OF JMEN
+            //TO-DO: FIX ME
+            //THIS IS STUFF IS NOT SO OK
+            $tenantId = $em->getFilters()->getFilter('multi_tenant')->getParameter('tenantId');
+            $tenant = $em->getRepository('RwmtBundle:Tenant')->findOneBy(array('id' => str_replace("'", "", $tenantId)));
+            $entity->setTenant($tenant);
+            //END OF JMEN
 
-                $em->persist($entity);
-                $em->flush();
+            $em->persist($entity);
+            $em->flush();
 
-                /*
-                 * The email sending should be moved to a background task
-                 */
-                $message = \Swift_Message::newInstance()
+            /*
+             * The email sending should be moved to a background task
+             */
+            $message = \Swift_Message::newInstance()
                     ->setSubject('RWMT New Account')
                     ->setFrom('no-reply@ridewithme.today')
                     ->setTo($entity->getEmail())
                     ->setBody(
-                        $this->renderView(
-                            'RwmtBundle:API\register:newAccount.email.twig',
-                            array('user' => $entity)
-                        )
-                    );
-                $this->get('mailer')->send($message);
+                    $this->renderView(
+                            'RwmtBundle:API\register:newAccount.email.twig', array('user' => $entity)
+                    )
+            );
+            $this->get('mailer')->send($message);
 
-                $url = $this->generateUrl('put_confirm_account', array('id' => $entity->getId()), true);
+            $url = $this->generateUrl('put_confirm_account', array('id' => $entity->getId()), true);
 
-                $response = new Response();
-                $response->setStatusCode(Codes::HTTP_CREATED);
-                $response->headers->set('Location', $url);
-
-                return $response;
-            }else{
-                $response = new Response();
-                $response->setStatusCode(Codes::HTTP_BAD_REQUEST);
-                $response->setContent($form->getErrors(true, true));
-
-                return $response;
-            }
-        }
-        catch(HttpException $e){
             $response = new Response();
-            $response->setStatusCode($e->getStatusCode());
-            $response->setContent($e->getMessage());
+            $response->setStatusCode(Codes::HTTP_CREATED);
+            $response->headers->set('Location', $url);
 
-            return $response; //FIX ME
+            return $response;
         }
+
+        return $form;
     }
 
     /**
@@ -139,7 +118,7 @@ class ApiRegistrationController extends FOSRestController
         /** @var User */
         $user = $em->getRepository('RwmtBundle:User')->getUserForActivation($request->request->get('token'));
 
-        if(!$user){
+        if (!$user) {
             throw new HttpException(Codes::HTTP_NOT_FOUND, 'User could not be found!');
         }
 
@@ -147,19 +126,18 @@ class ApiRegistrationController extends FOSRestController
         $em->flush();
 
         /*
-        * The email sending should be moved to a background task
-        */
-       $message = \Swift_Message::newInstance()
-           ->setSubject('RWMT Account Activation')
-           ->setFrom('no-reply@ridewithme.today')
-           ->setTo($user->getEmail())
-           ->setBody(
-               $this->renderView(
-                   'RwmtBundle:API\register:accountActivation.email.twig',
-                   array('user' => $user)
-               )
-           );
-       $this->get('mailer')->send($message);
+         * The email sending should be moved to a background task
+         */
+        $message = \Swift_Message::newInstance()
+                ->setSubject('RWMT Account Activation')
+                ->setFrom('no-reply@ridewithme.today')
+                ->setTo($user->getEmail())
+                ->setBody(
+                $this->renderView(
+                        'RwmtBundle:API\register:accountActivation.email.twig', array('user' => $user)
+                )
+        );
+        $this->get('mailer')->send($message);
 
         $response = new Response();
         $response->setStatusCode(Codes::HTTP_NO_CONTENT);
@@ -185,11 +163,11 @@ class ApiRegistrationController extends FOSRestController
         /* @var $user User */
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if(!$user->isCredentialsNonExpired() || !$user->isAccountNonLocked() || !$user->isAccountNonExpired() || !$user->isEnabled()){
+        if (!$user->isCredentialsNonExpired() || !$user->isAccountNonLocked() || !$user->isAccountNonExpired() || !$user->isEnabled()) {
             throw new HttpException(403);
         }
 
-        return array('user'=>$user);
+        return array('user' => $user);
     }
 
     /*
